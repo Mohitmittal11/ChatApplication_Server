@@ -14,7 +14,7 @@ const moment = require("moment");
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: "https://chat-application-frontend-gamma.vercel.app",
   },
 });
 
