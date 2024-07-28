@@ -11,7 +11,7 @@ exports.saveMessagedata = async (req, res) => {
 
     if (lastDate.length > 0) {
       const response = await messageModel.updateOne(
-        { _date: moment().format("Do MMM YYYY") },
+        { _date: requestBody?._date },
         { $push: { messageinfo: requestBody.messageinfo } }
       );
 
