@@ -48,10 +48,6 @@ exports.getMessage = async (req, res) => {
 
     console.log("gjhbnm.,", time1);
 
-    // const response = await messageModel.find({
-    //   "messageinfo.room_id": { $in: roomid },
-    // });
-
     const response = await messageModel
       .aggregate([
         // Unwind the messageinfo array

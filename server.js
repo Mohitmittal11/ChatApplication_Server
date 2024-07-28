@@ -10,11 +10,10 @@ var session = require("express-session");
 const allRoute = require("./Routes/AllRoute");
 const { Server } = require("socket.io");
 const { DateTime } = require("luxon");
-const moment = require("moment");
 
 const io = new Server(server, {
   cors: {
-    origin: "https://chat-application-frontend-gamma.vercel.app",
+    origin: "http://localhost:3000",
   },
 });
 
@@ -49,10 +48,13 @@ io.on("connection", async (socket) => {
   });
 
   socket.on("message", (broadcastData) => {
-    console.log("Data that is received from frontend is", broadcastData.roomid);
-    socket.broadcast
-      .to(broadcastData.roomid)
-      .emit("message", broadcastData.usermessage);
+    const { messageinfo } = broadcastData;
+    console.log(
+      "Data that is received from frontend is",
+      messageinfo[0].room_id
+    );
+
+    io.to(messageinfo[0].room_id).emit("receivedMessage", broadcastData);
   });
 
   socket.on("disconnect", () => {
