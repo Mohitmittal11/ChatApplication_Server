@@ -78,7 +78,7 @@ exports.getMessage = async (req, res) => {
         data: response,
       });
     } else {
-      res.json({ message: "No Data Found" });
+      res.json({ message: "No Data Found", data: response });
     }
   } catch (err) {
     res.json({ errorMessage: err });
