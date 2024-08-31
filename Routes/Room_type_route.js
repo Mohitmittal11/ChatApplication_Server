@@ -19,4 +19,4 @@ roomTypeRouter.get("/getroomOption", room_type_controller.getRoomdata);
 //   }
 // });
 
-module.exports= roomTypeRouter;
+module.exports = roomTypeRouter;

@@ -1,16 +1,15 @@
-const messageModel = require("../Schemas/messageSchema");
-const roomModel = require("../Schemas/room");
-const groupModel = require("../Schemas/groupSchema");
+const singlechatModel = require("../Schemas/singleChatSchema");
+const userModel = require("../Schemas/Users");
 const moment = require("moment");
 
-// exports.saveMessagedata = async (req, res) => {
+// exports.saveSingleChatMessage = async (req, res) => {
 //   const requestBody = await req.body;
 //   console.log("Request body", requestBody);
 //   try {
-//     const lastDate = await messageModel.find({ _date: requestBody?._date });
+//     const lastDate = await singlechatModel.find({ _date: requestBody?._date });
 
 //     if (lastDate.length > 0) {
-//       const response = await messageModel.updateOne(
+//       const response = await singlechatModel.updateOne(
 //         { _date: requestBody?._date },
 //         { $push: { messageinfo: requestBody.messageinfo } }
 //       );
@@ -23,9 +22,8 @@ const moment = require("moment");
 //         });
 //       }
 //     } else {
-//       const result = await messageModel.create(requestBody);
+//       const result = await singlechatModel.create(requestBody);
 
-//       console.log("Result is ", result);
 //       if (result && result !== undefined && result !== null) {
 //         res.json({
 //           statusCode: 200,
@@ -39,25 +37,26 @@ const moment = require("moment");
 //   }
 // };
 
-exports.getMessage = async (req, res) => {
+exports.getSingleChatData = async (req, res) => {
   const user_name = await req?.query?.username;
-  const roomid = await req?.query?.roomid;
+  const sessionId = await req?.query?.sessionId;
 
-  console.log(`user name is ${user_name} and room id is ${roomid}`);
   try {
     const timeStamp = (
-      await groupModel.find({ users: { $in: [user_name] } })
+      await userModel.find({
+        username: user_name,
+      })
     ).map((value) => value.microtime);
     const time1 = timeStamp[0];
 
-    const response = await messageModel
+    const response = await singlechatModel
       .aggregate([
         // Unwind the messageinfo array
         { $unwind: "$messageinfo" },
         // Match documents with the desired room_id
         {
           $match: {
-            "messageinfo.group_id": roomid,
+            "messageinfo.session_id": sessionId,
             "messageinfo.microTime": { $gte: time1 },
           },
         },

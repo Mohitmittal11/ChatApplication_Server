@@ -9,7 +9,9 @@ const cookieParser = require("cookie-parser");
 var session = require("express-session");
 const allRoute = require("./Routes/AllRoute");
 const { Server } = require("socket.io");
-const { DateTime } = require("luxon");
+const moment = require("moment");
+const singlechatModel = require("./Schemas/singleChatSchema");
+const messageModel = require("./Schemas/messageSchema");
 
 const io = new Server(server, {
   cors: {
@@ -27,34 +29,81 @@ app.use(
     saveUninitialized: true,
   })
 );
-app.use(allRoute.roomroute);
-app.use(allRoute.room_type_route);
 app.use(allRoute.messageRoute);
 app.use(allRoute.sigininRoute);
+app.use(allRoute.SingleChatRoute);
+app.use(allRoute.userRoute);
+app.use(allRoute.groupRoute);
 app.get("/", async (req, res) => {
   res.send("Hello I am Going to create a chat Application using Socket");
 });
 
-io.on("connection", async (socket) => {
-  socket.on("join", (roomid) => {
-    console.log("Room id for specify the data is ", roomid);
-    socket.join(roomid);
+io.on("connection", (socket) => {
+  // socket?.on("newUser", (newUserData) => {
+  //   console.log("User name is ", newUserData);
+  //   socket.broadcast.emit("newuserjoined", newUserData);
+  // });
+
+  socket.on("join", (sessionId) => {
+    socket.join(sessionId);
     console.log(
       "Size of user conected to ",
-      io.sockets.adapter.rooms.get(roomid).size
+      io.sockets.adapter.rooms.get(sessionId).size
     );
-
-    socket.to(roomid).emit("join", crypto.randomUUID());
+    io.to(sessionId).emit("join", sessionId);
   });
 
   socket.on("message", (broadcastData) => {
-    const { messageinfo } = broadcastData;
-    console.log(
-      "Data that is received from frontend is",
-      messageinfo[0].room_id
+    io.to(broadcastData.messageinfo[0].session_id).emit(
+      "receivedMessage",
+      broadcastData
     );
 
-    io.to(messageinfo[0].room_id).emit("receivedMessage", broadcastData);
+    async function saveData() {
+      try {
+        const lastDate = await singlechatModel.find({
+          _date: broadcastData?._date,
+        });
+
+        if (lastDate.length > 0) {
+          await singlechatModel.updateOne(
+            { _date: broadcastData?._date },
+            { $push: { messageinfo: broadcastData.messageinfo } }
+          );
+        } else {
+          await singlechatModel.create(broadcastData);
+        }
+      } catch (err) {
+        console.log("Error is ", err);
+      }
+    }
+    saveData();
+  });
+
+  socket.on("groupmessage", (groupdata) => {
+    io.to(groupdata.messageinfo[0].group_id).emit(
+      "receivedGroupMessage",
+      groupdata
+    );
+
+    async function saveGroupMessageData() {
+      try {
+        const lastDate = await messageModel.find({ _date: groupdata?._date });
+
+        if (lastDate.length > 0) {
+          await messageModel.updateOne(
+            { _date: groupdata?._date },
+            { $push: { messageinfo: groupdata.messageinfo } }
+          );
+        } else {
+          await messageModel.create(groupdata);
+        }
+      } catch (err) {
+        console.log("Error is ", err);
+      }
+    }
+
+    saveGroupMessageData();
   });
 
   socket.on("disconnect", () => {
@@ -62,9 +111,6 @@ io.on("connection", async (socket) => {
     return () => socket.removeAllListeners();
   });
 });
-
-const dateTime = DateTime.local().toLocaleString(DateTime.TIME_24_SIMPLE);
-console.log("Date and time is", dateTime);
 
 server.listen(8001, () => {
   console.log("Server is Started at port 8001");

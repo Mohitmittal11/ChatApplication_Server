@@ -1,4 +1,3 @@
-const roomJoiValidation = require("./roomSchemaValidation");
-const messageJoiValidation= require('./messageSchemaValidation');
-module.exports = { roomJoiValidation,messageJoiValidation };
-    
+const joiGroupValidation = require("./roomSchemaValidation");
+const messageJoiValidation = require("./messageSchemaValidation");
+module.exports = { joiGroupValidation, messageJoiValidation };

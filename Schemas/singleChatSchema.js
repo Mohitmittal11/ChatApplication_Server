@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { type } = require("../SchemaValidation/roomSchemaValidation");
-const messageSchema = new mongoose.Schema(
+const SingleChatSchema = new mongoose.Schema(
   {
     _date: {
       type: String,
@@ -10,13 +10,13 @@ const messageSchema = new mongoose.Schema(
         from: {
           type: String,
         },
+        to: {
+          type: String,
+        },
         message: {
           type: String,
         },
-        group_name: {
-          type: String,
-        },
-        group_id: {
+        session_id: {
           type: String,
         },
         _date: {
@@ -34,4 +34,4 @@ const messageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("message", messageSchema);
+module.exports = mongoose.model("singlechatmessage", SingleChatSchema);

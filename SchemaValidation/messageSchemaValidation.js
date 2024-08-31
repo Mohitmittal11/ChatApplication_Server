@@ -8,7 +8,7 @@ const joiMessageValidation = joi.object({
     "string.empty": "Date should not be an empty field",
   }),
   messageinfo: joi.object().keys({
-    username: joi.string().required().messages({
+    from: joi.string().required().messages({
       "any.required": "User Name is Required",
       "string.base": "User Name should be type of text",
       "string.empty": "User Name should not be an empty field",

@@ -1,13 +1,11 @@
-const roomModel = require("../Schemas/room");
-const roomTypeModel = require("../Schemas/room_type");
+const userModel = require("../Schemas/Users");
 
 exports.getSiginin = async (req, res) => {
-  const bodyData = await req.body;
+  const username = await req.body.user_name;
 
   try {
-    const response = await roomModel.find({
-      username: bodyData.user_name,
-      room_name: bodyData?.room_name,
+    const response = await userModel.find({
+      username: username,
     });
 
     if (response.length > 0) {
