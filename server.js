@@ -15,7 +15,7 @@ const messageModel = require("./Schemas/messageSchema");
 
 const io = new Server(server, {
   cors: {
-    origin: `${process.env.originURL}`,
+    origin: `*`,
   },
 });
 
